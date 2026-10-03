@@ -1,0 +1,60 @@
+name: WiiUDownloader
+options:
+  bundleIdPrefix: com.wiiudownloader
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+packages:
+  WiiUCore:
+    path: WiiUCore
+
+targets:
+  WiiUDownloader:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: WiiUDownloaderApp/Sources
+    dependencies:
+      - package: WiiUCore
+        product: WiiUCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wiiudownloader.app
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+    info:
+      path: WiiUDownloaderApp/Info.plist
+      properties:
+        CFBundleDisplayName: WiiU Downloader
+        UILaunchScreen: {}
+        UIApplicationSupportsIndirectInputEvents: true
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        # The Nintendo CDN (ccs.cdn.c.shop.nintendowifi.net) is plain HTTP.
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+
+schemes:
+  WiiUDownloader:
+    build:
+      targets:
+        WiiUDownloader: all
+    run:
+      config: Debug
+    archive:
+      config: Release

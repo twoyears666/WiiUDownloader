@@ -1,0 +1,186 @@
+[
+  {
+    "name": "Super Mario 3D World",
+    "titleID": "0005000010144f00",
+    "region": 2,
+    "key": 0,
+    "category": 0,
+    "version": 64
+  },
+  {
+    "name": "Mario Kart 8",
+    "titleID": "000500001010ed00",
+    "region": 2,
+    "key": 0,
+    "category": 0,
+    "version": 64
+  },
+  {
+    "name": "Splatoon",
+    "titleID": "0005000010162a00",
+    "region": 2,
+    "key": 0,
+    "category": 0,
+    "version": 80
+  },
+  {
+    "name": "New Super Mario Bros. U",
+    "titleID": "0005000010101d00",
+    "region": 1,
+    "key": 0,
+    "category": 0,
+    "version": 0
+  },
+  {
+    "name": "The Legend of Zelda: Breath of the Wild",
+    "titleID": "00050000101c9400",
+    "region": 2,
+    "key": 0,
+    "category": 0,
+    "version": 208
+  },
+  {
+    "name": "The Legend of Zelda: Breath of the Wild",
+    "titleID": "00050000101c9500",
+    "region": 4,
+    "key": 0,
+    "category": 0,
+    "version": 208
+  },
+  {
+    "name": "Donkey Kong Country: Tropical Freeze",
+    "titleID": "0005000010138300",
+    "region": 2,
+    "key": 0,
+    "category": 0,
+    "version": 32
+  },
+  {
+    "name": "Captain Toad: Treasure Tracker",
+    "titleID": "000500001011b900",
+    "region": 6,
+    "key": 0,
+    "category": 0,
+    "version": 32
+  },
+  {
+    "name": "Bayonetta 2",
+    "titleID": "0005000010143500",
+    "region": 2,
+    "key": 0,
+    "category": 0,
+    "version": 32
+  },
+  {
+    "name": "Pikmin 3",
+    "titleID": "0005000010103e00",
+    "region": 4,
+    "key": 0,
+    "category": 0,
+    "version": 32
+  },
+  {
+    "name": "Yoshi's Woolly World",
+    "titleID": "0005000010174400",
+    "region": 4,
+    "key": 0,
+    "category": 0,
+    "version": 0
+  },
+  {
+    "name": "Super Mario Maker",
+    "titleID": "000500001018a900",
+    "region": 2,
+    "key": 0,
+    "category": 0,
+    "version": 0
+  },
+  {
+    "name": "Super Smash Bros. for Wii U",
+    "titleID": "000500001010e000",
+    "region": 2,
+    "key": 0,
+    "category": 0,
+    "version": 0
+  },
+  {
+    "name": "Super Mario 3D World",
+    "titleID": "0005000e10144f00",
+    "region": 2,
+    "key": 0,
+    "category": 1,
+    "version": 80
+  },
+  {
+    "name": "Mario Kart 8",
+    "titleID": "0005000e1010ed00",
+    "region": 2,
+    "key": 0,
+    "category": 1,
+    "version": 64
+  },
+  {
+    "name": "Splatoon",
+    "titleID": "0005000e10162a00",
+    "region": 2,
+    "key": 0,
+    "category": 1,
+    "version": 176
+  },
+  {
+    "name": "Super Smash Bros. for Wii U",
+    "titleID": "0005000e1010e000",
+    "region": 2,
+    "key": 0,
+    "category": 1,
+    "version": 288
+  },
+  {
+    "name": "Mario Kart 8",
+    "titleID": "0005000c1010ed00",
+    "region": 2,
+    "key": 0,
+    "category": 2,
+    "version": 0
+  },
+  {
+    "name": "Splatoon",
+    "titleID": "0005000c10162a00",
+    "region": 2,
+    "key": 0,
+    "category": 2,
+    "version": 0
+  },
+  {
+    "name": "Super Smash Bros. for Wii U",
+    "titleID": "0005000c1010e000",
+    "region": 6,
+    "key": 0,
+    "category": 2,
+    "version": 0
+  },
+  {
+    "name": "Hyrule Warriors",
+    "titleID": "0005000c1011ae00",
+    "region": 2,
+    "key": 0,
+    "category": 2,
+    "version": 0
+  },
+  {
+    "name": "Bayonetta 2 Demo",
+    "titleID": "0005000210143500",
+    "region": 2,
+    "key": 0,
+    "category": 3,
+    "version": 0
+  },
+  {
+    "name": "Pikmin 3 Demo",
+    "titleID": "0005000210103e00",
+    "region": 4,
+    "key": 0,
+    "category": 3,
+    "version": 0
+  }
+]

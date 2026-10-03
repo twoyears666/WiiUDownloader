@@ -1,0 +1,13 @@
+# SwiftPM
+.build/
+.swiftpm/
+Package.resolved
+
+# XcodeGen output (regenerate with `xcodegen generate`)
+*.xcodeproj
+*.xcworkspace
+
+# Xcode
+DerivedData/
+xcuserdata/
+*.xcuserstate
