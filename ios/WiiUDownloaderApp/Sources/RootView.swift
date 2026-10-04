@@ -17,10 +17,12 @@ enum Theme {
 struct WiiUDownloaderApp: App {
     @StateObject private var app = AppState()
 
-    var body: some View {
-        RootView()
-            .environmentObject(app)
-            .tint(Theme.accent)
+    var body: some Scene {
+        WindowGroup {
+            RootView()
+                .environmentObject(app)
+                .tint(Theme.accent)
+        }
     }
 }
 
