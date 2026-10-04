@@ -4,6 +4,10 @@ options:
   deploymentTarget:
     iOS: "16.0"
   createIntermediateGroups: true
+  # Emit an Xcode 15-compatible project format. XcodeGen otherwise defaults to
+  # the Xcode 16 format, which older CI runners cannot open.
+  projectFormat: xcode15_0
+  xcodeVersion: "15.0"
 
 packages:
   WiiUCore:
