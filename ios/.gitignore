@@ -11,3 +11,6 @@ Package.resolved
 DerivedData/
 xcuserdata/
 *.xcuserstate
+
+# gomobile build output (regenerate with scripts/build_mobile.sh)
+WiiUCore/Frameworks/

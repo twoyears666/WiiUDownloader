@@ -41,12 +41,27 @@ public enum WUAPacker {
 
     /// Recovers the title ID and version from `title.tmd` in `directory`, when
     /// that NUS metadata file is still present.
+    ///
+    /// Only the fixed header is read: title ID at `0x18C` (big-endian u64) and
+    /// title version at `0x1DC` (big-endian u16).
     public static func detectTitleInfo(in directory: URL) -> (titleID: UInt64, titleVersion: UInt16)? {
         let tmdURL = directory.appendingPathComponent("title.tmd")
-        guard let data = try? Data(contentsOf: tmdURL), let tmd = try? parseTMD([UInt8](data)) else {
-            return nil
+        guard let data = try? Data(contentsOf: tmdURL) else { return nil }
+        let bytes = [UInt8](data)
+        guard bytes.count >= 0x1DE else { return nil }
+        return (readU64BE(bytes, at: 0x18C), readU16BE(bytes, at: 0x1DC))
+    }
+
+    private static func readU64BE(_ bytes: [UInt8], at offset: Int) -> UInt64 {
+        var value: UInt64 = 0
+        for index in 0..<8 {
+            value = (value << 8) | UInt64(bytes[offset + index])
         }
-        return (tmd.titleID, tmd.titleVersion)
+        return value
+    }
+
+    private static func readU16BE(_ bytes: [UInt8], at offset: Int) -> UInt16 {
+        (UInt16(bytes[offset]) << 8) | UInt16(bytes[offset + 1])
     }
 
     // MARK: - Packing

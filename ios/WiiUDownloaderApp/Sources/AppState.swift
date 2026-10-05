@@ -66,27 +66,20 @@ final class AppState: ObservableObject {
 
         let destination = FileManager.default.temporaryDirectory
             .appendingPathComponent("titles-\(UUID().uuidString).json")
-        let downloader = Downloader()
 
-        DispatchQueue.global(qos: .userInitiated).async { [titleDBURL] in
+        Task { [titleDBURL] in
             do {
-                try downloader.download(
-                    from: url,
-                    to: destination,
-                    options: DownloadOptions(doRetries: true, allowResume: false, userAgent: "WiiUDownloader"),
-                    reporter: nil
-                )
-                try TitleDatabase.shared.load(from: destination)
+                let (data, _) = try await URLSession.shared.data(from: url)
+                try data.write(to: destination)
+                try await Task.detached(priority: .userInitiated) {
+                    try TitleDatabase.shared.load(from: destination)
+                }.value
                 try? FileManager.default.removeItem(at: destination)
                 let entries = TitleDatabase.shared.allEntries()
-                DispatchQueue.main.async {
-                    self.titles = entries
-                    self.statusMessage = "Loaded \(entries.count) titles"
-                }
+                self.titles = entries
+                self.statusMessage = "Loaded \(entries.count) titles"
             } catch {
-                DispatchQueue.main.async {
-                    self.statusMessage = "Update failed (\(titleDBURL)): \(error)"
-                }
+                self.statusMessage = "Update failed (\(titleDBURL)): \(error)"
             }
         }
     }

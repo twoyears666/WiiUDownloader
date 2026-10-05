@@ -81,9 +81,11 @@ public final class TitleDatabase: @unchecked Sendable {
         }
     }
 
-    /// Replaces the whole database, invalidating the lazily-built index.
+    /// Replaces the whole database, invalidating the lazily-built index and
+    /// mirroring the entries into the Go backend.
     public func setEntries(_ entries: [TitleEntry]) {
         self.entries = entries
+        GoBackend.installTitleDatabase(entries)
     }
 
     /// Loads entries from a JSON file at `url`.

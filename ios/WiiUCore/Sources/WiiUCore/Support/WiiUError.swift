@@ -10,6 +10,8 @@ public enum WiiUError: Error, LocalizedError, Equatable {
     case extraction(String)
     case packing(String)
     case invalidState(String)
+    /// Error surfaced by the Go backend (gomobile) that has no more specific case.
+    case backend(String)
 
     public var errorDescription: String? {
         switch self {
@@ -21,6 +23,7 @@ public enum WiiUError: Error, LocalizedError, Equatable {
         case .extraction(let detail): return "Extraction error: \(detail)"
         case .packing(let detail): return "Packing error: \(detail)"
         case .invalidState(let detail): return "Invalid download state: \(detail)"
+        case .backend(let detail): return "Backend error: \(detail)"
         }
     }
 }
