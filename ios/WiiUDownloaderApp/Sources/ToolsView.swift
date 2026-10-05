@@ -11,6 +11,7 @@ struct ToolsView: View {
                 VStack(spacing: 12) {
                     DownloadByIDCard()
                     FileBrowserCard()
+                    PackWUACard()
                 }
                 .padding(12)
             }
@@ -324,5 +325,173 @@ final class FileBrowserModel: ObservableObject {
         tree = nil
         files = []
         selected = []
+    }
+}
+
+// MARK: - Pack to .wua
+
+/// Repacks an already-decrypted title folder into a `.wua` archive.
+private struct PackWUACard: View {
+    @EnvironmentObject private var app: AppState
+    @StateObject private var model = PackWUAModel()
+
+    var body: some View {
+        Card {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Repack to .wua")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.text)
+                Text("Packs a decrypted title folder (`code/ content/ meta/`) into a single Wii U archive. The version is taken from `title.tmd` when available.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.secondaryText)
+
+                TextField("Source folder (decrypted title)", text: $model.sourcePath)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .font(.footnote.monospaced())
+                    .textFieldStyle(.roundedBorder)
+
+                TextField("Title ID (fallback, 16 hex)", text: $model.titleID)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .font(.body.monospaced())
+                    .textFieldStyle(.roundedBorder)
+
+                TextField("Version (fallback)", text: $model.versionText)
+                    .keyboardType(.numberPad)
+                    .textFieldStyle(.roundedBorder)
+
+                if model.isWorking {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                        Text(model.status)
+                            .font(.caption)
+                            .foregroundStyle(Theme.secondaryText)
+                    }
+                } else if !model.status.isEmpty {
+                    Text(model.status)
+                        .font(.caption)
+                        .foregroundStyle(Theme.secondaryText)
+                }
+
+                if let error = model.error {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+
+                HStack(spacing: 10) {
+                    Button {
+                        model.pack(destinationDirectory: app.outputDirectory)
+                    } label: {
+                        Label("Pack to .wua", systemImage: "archivebox")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!model.canPack || model.isWorking)
+
+                    if model.isWorking {
+                        Button("Cancel", role: .destructive) {
+                            model.cancel()
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+            }
+        }
+        .onAppear {
+            if model.sourcePath.isEmpty {
+                model.sourcePath = app.outputDirectory.path
+            }
+        }
+    }
+}
+
+/// Runs `WUAPacker` off the main thread and republishes progress.
+@MainActor
+final class PackWUAModel: ObservableObject {
+    @Published var sourcePath = ""
+    @Published var titleID = ""
+    @Published var versionText = ""
+    @Published var isWorking = false
+    @Published var status = ""
+    @Published var error: String?
+
+    private let controller = OperationController()
+
+    var canPack: Bool {
+        !sourcePath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    func cancel() {
+        controller.cancel()
+    }
+
+    func pack(destinationDirectory: URL) {
+        guard !isWorking else { return }
+
+        let sourceString = sourcePath.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !sourceString.isEmpty else {
+            error = "Enter the decrypted title folder"
+            return
+        }
+        let source = URL(fileURLWithPath: sourceString, isDirectory: true)
+        let fieldTitleID = UInt64(titleID.trimmingCharacters(in: .whitespacesAndNewlines), radix: 16)
+        let fieldVersion = UInt16(versionText.trimmingCharacters(in: .whitespacesAndNewlines))
+
+        isWorking = true
+        error = nil
+        status = "Packing…"
+        let controller = self.controller
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                let resolvedID: UInt64
+                let resolvedVersion: UInt16
+                if let detected = WUAPacker.detectTitleInfo(in: source) {
+                    resolvedID = detected.titleID
+                    resolvedVersion = detected.titleVersion
+                } else if let fieldTitleID, let fieldVersion {
+                    resolvedID = fieldTitleID
+                    resolvedVersion = fieldVersion
+                } else {
+                    throw WiiUError.packing("title.tmd not found; enter the title ID and version")
+                }
+
+                try FileManager.default.createDirectory(at: destinationDirectory, withIntermediateDirectories: true)
+                let output = destinationDirectory.appendingPathComponent(
+                    WUAPacker.defaultFileName(titleID: resolvedID, titleVersion: resolvedVersion)
+                )
+                let result = try WUAPacker.pack(
+                    sourceDirectory: source,
+                    outputURL: output,
+                    titleID: resolvedID,
+                    titleVersion: resolvedVersion,
+                    controller: controller,
+                    progress: { fraction in
+                        DispatchQueue.main.async {
+                            self.status = "Packing \(Int(fraction * 100))%"
+                        }
+                    }
+                )
+                DispatchQueue.main.async {
+                    self.isWorking = false
+                    self.status = "Wrote \(result.fileURL.lastPathComponent) "
+                        + "(\(formatBytes(Int64(result.fileSize))), \(result.fileCount) files)"
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.isWorking = false
+                    self.status = ""
+                    if let packingError = error as? WiiUError, case .cancelled = packingError {
+                        self.status = "Cancelled"
+                    } else if controller.isCancelled {
+                        self.status = "Cancelled"
+                    } else {
+                        self.error = "\(error)"
+                    }
+                }
+            }
+        }
     }
 }

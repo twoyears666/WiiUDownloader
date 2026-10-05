@@ -8,6 +8,7 @@ public enum WiiUError: Error, LocalizedError, Equatable {
     case download(String)
     case validation(String)
     case extraction(String)
+    case packing(String)
     case invalidState(String)
 
     public var errorDescription: String? {
@@ -18,6 +19,7 @@ public enum WiiUError: Error, LocalizedError, Equatable {
         case .download(let detail): return "Download error: \(detail)"
         case .validation(let detail): return "Validation error: \(detail)"
         case .extraction(let detail): return "Extraction error: \(detail)"
+        case .packing(let detail): return "Packing error: \(detail)"
         case .invalidState(let detail): return "Invalid download state: \(detail)"
         }
     }

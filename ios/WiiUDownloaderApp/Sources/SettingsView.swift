@@ -11,6 +11,7 @@ struct SettingsView: View {
                 VStack(spacing: 12) {
                     outputCard
                     decryptionCard
+                    wuaCard
                     databaseCard
                     aboutCard
                 }
@@ -54,6 +55,22 @@ struct SettingsView: View {
                 Toggle("Delete encrypted files once decrypted", isOn: $app.deleteEncrypted)
                     .foregroundStyle(Theme.text)
                     .disabled(!app.autoDecrypt)
+            }
+        }
+    }
+
+    private var wuaCard: some View {
+        Card {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Wii U archive (.wua)")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.text)
+                Toggle("Pack decrypted title to .wua after download", isOn: $app.autoPackWUA)
+                    .foregroundStyle(Theme.text)
+                    .disabled(!app.autoDecrypt)
+                Text("WUA files are stored uncompressed, so they are roughly as large as the decrypted title. Decryption must be enabled.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.secondaryText)
             }
         }
     }

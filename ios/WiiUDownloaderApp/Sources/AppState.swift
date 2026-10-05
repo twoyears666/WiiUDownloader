@@ -15,6 +15,7 @@ final class AppState: ObservableObject {
     @AppStorage("outputDirectoryPath") var outputDirectoryPath = ""
     @AppStorage("autoDecrypt") var autoDecrypt = true
     @AppStorage("deleteEncrypted") var deleteEncrypted = true
+    @AppStorage("autoPackWUA") var autoPackWUA = false
     @AppStorage("titleDBURL") var titleDBURL = "https://napi.v10lator.de/db?t=json"
 
     init() {
@@ -94,13 +95,17 @@ final class AppState: ObservableObject {
 
     @discardableResult
     func enqueue(titleID: String, name: String, version: Int = versionLatest) -> DownloadTask {
+        // Each title gets its own folder so concurrent downloads cannot clash
+        // and so the packer has an unambiguous source directory.
+        let titleDirectory = outputDirectory.appendingPathComponent(titleID, isDirectory: true)
         let task = DownloadTask(
             titleID: titleID,
             name: name,
-            outputDirectory: outputDirectory,
+            outputDirectory: titleDirectory,
             version: version,
             decrypt: autoDecrypt,
-            deleteEncrypted: deleteEncrypted
+            deleteEncrypted: deleteEncrypted,
+            autoPack: autoPackWUA && autoDecrypt
         )
         tasks.insert(task, at: 0)
         task.start()

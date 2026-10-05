@@ -37,6 +37,7 @@ final class DownloadTask: ObservableObject, Identifiable {
     let version: Int
     let decrypt: Bool
     let deleteEncrypted: Bool
+    let autoPack: Bool
     let reporter: TaskProgressReporter
 
     @Published var status: Status = .queued
@@ -55,7 +56,8 @@ final class DownloadTask: ObservableObject, Identifiable {
         outputDirectory: URL,
         version: Int,
         decrypt: Bool,
-        deleteEncrypted: Bool
+        deleteEncrypted: Bool,
+        autoPack: Bool
     ) {
         self.titleID = titleID
         self.name = name
@@ -63,6 +65,7 @@ final class DownloadTask: ObservableObject, Identifiable {
         self.version = version
         self.decrypt = decrypt
         self.deleteEncrypted = deleteEncrypted
+        self.autoPack = autoPack
         self.reporter = TaskProgressReporter()
         self.reporter.task = self
     }
@@ -92,11 +95,12 @@ final class DownloadTask: ObservableObject, Identifiable {
         let version = self.version
         let decrypt = self.decrypt
         let deleteEncrypted = self.deleteEncrypted
+        let autoPack = self.autoPack
         let reporter = self.reporter
 
         let work = DispatchWorkItem { [weak self] in
             do {
-                try TitleDownloader.downloadTitle(
+                let info = try TitleDownloader.downloadTitle(
                     titleID: titleID,
                     outputDirectory: outputDirectory,
                     version: version,
@@ -104,6 +108,36 @@ final class DownloadTask: ObservableObject, Identifiable {
                     deleteEncryptedContents: deleteEncrypted,
                     reporter: reporter
                 )
+
+                if autoPack, !reporter.controller.isCancelled {
+                    DispatchQueue.main.async {
+                        guard let self, self.status != .cancelled else { return }
+                        self.message = "Packing .wua…"
+                    }
+                    let outputURL = outputDirectory.deletingLastPathComponent()
+                        .appendingPathComponent(
+                            WUAPacker.defaultFileName(titleID: info.titleID, titleVersion: info.titleVersion)
+                        )
+                    let result = try WUAPacker.pack(
+                        sourceDirectory: info.outputDirectory,
+                        outputURL: outputURL,
+                        titleID: info.titleID,
+                        titleVersion: info.titleVersion,
+                        controller: reporter.controller,
+                        progress: { fraction in
+                            DispatchQueue.main.async { [weak self] in
+                                self?.message = "Packing \(Int(fraction * 100))%"
+                            }
+                        }
+                    )
+                    DispatchQueue.main.async {
+                        guard let self, self.status != .cancelled else { return }
+                        self.status = .finished
+                        self.message = "Finished (packed \(result.fileURL.lastPathComponent))"
+                    }
+                    return
+                }
+
                 DispatchQueue.main.async {
                     guard let self, self.status != .cancelled else { return }
                     self.status = .finished

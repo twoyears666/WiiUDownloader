@@ -3,6 +3,20 @@ import Foundation
 /// Maximum number of contents fetched concurrently (Go's `maxConcurrentDownloads`).
 let maxConcurrentDownloads = 4
 
+/// Identifies what a completed download produced, including the concrete title
+/// version resolved from the TMD (useful when the caller asked for "latest").
+public struct DownloadedTitleInfo: Sendable {
+    public let titleID: UInt64
+    public let titleVersion: UInt16
+    public let outputDirectory: URL
+
+    public init(titleID: UInt64, titleVersion: UInt16, outputDirectory: URL) {
+        self.titleID = titleID
+        self.titleVersion = titleVersion
+        self.outputDirectory = outputDirectory
+    }
+}
+
 /// Orchestrates a full title download: TMD, ticket, certificate and every
 /// content listed in the TMD, with optional decryption. Port of
 /// `DownloadTitleContents` / `ensureTitleTicket` / `doDeleteEncryptedContents`.
@@ -25,6 +39,8 @@ public enum TitleDownloader {
     ///   - client: Session whose configuration is copied for each transfer.
     ///   - reporter: Receives progress and cancellation/pause state.
     ///   - decryptor: Decryption backend.
+    /// - Returns: The resolved title ID, version and output folder.
+    @discardableResult
     public static func downloadTitle(
         titleID: String,
         outputDirectory: URL,
@@ -36,7 +52,7 @@ public enum TitleDownloader {
         client: URLSession = .shared,
         reporter: ProgressReporter? = nil,
         decryptor: ContentDecryptor = DefaultContentDecryptor()
-    ) throws {
+    ) throws -> DownloadedTitleInfo {
         let tid = try parseTitleID(titleID)
         let entry = titleEntry(forTitleID: tid)
 
@@ -124,6 +140,12 @@ public enum TitleDownloader {
                 reporter: reporter
             )
         }
+
+        return DownloadedTitleInfo(
+            titleID: tmd.titleID,
+            titleVersion: tmd.titleVersion,
+            outputDirectory: outputDirectory
+        )
     }
 
     /// Fetches a title's ticket from the CDN, generating a synthetic one when
