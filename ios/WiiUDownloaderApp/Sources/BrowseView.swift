@@ -131,17 +131,20 @@ struct TitleDetailView: View {
                     Toggle("Download latest version", isOn: $useLatest)
                         .foregroundStyle(Theme.text)
                     if !useLatest {
-                        LabeledValue(label: "Pinned version", value: entry.version >= 0 ? "\(entry.version)" : "Start from 0")
+                        LabeledValue(label: "Pinned version", value: entry.version > 0 ? "\(entry.version)" : "Latest")
                     }
                 }
 
                 relatedSection
 
                 Button {
+                    // A database version of 0 means "unset", so it maps to the
+                    // latest version just like the upstream queue remap does.
+                    let pinned = entry.version > 0 ? entry.version : versionLatest
                     app.enqueue(
                         titleID: entry.titleIDString,
                         name: entry.name,
-                        version: useLatest ? versionLatest : max(0, entry.version)
+                        version: useLatest ? versionLatest : pinned
                     )
                 } label: {
                     Label("Add to queue", systemImage: "arrow.down.circle.fill")

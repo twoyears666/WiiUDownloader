@@ -283,7 +283,9 @@ private func decryptPlainContent(
         if left == 0 { break }
     }
 
-    if content.hash.count >= 20, contentHash != Array(content.hash[0 ..< 20]) {
+    // `contentHash` holds the decrypted plaintext; the TMD stores its SHA-1, so
+    // the digest must be taken before comparing (Go keeps a rolling hasher here).
+    if content.hash.count >= 20, Digests.sha1(contentHash) != Array(content.hash[0 ..< 20]) {
         throw WiiUError.extraction("content hash mismatch")
     }
     return output

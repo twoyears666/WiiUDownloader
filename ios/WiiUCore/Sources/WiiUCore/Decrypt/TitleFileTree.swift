@@ -77,7 +77,7 @@ public final class TitleFileTree {
         client: URLSession,
         reporter: ProgressReporter?
     ) throws -> TitleFileTree {
-        let tidStr = String(format: "%016x", titleID)
+        let tidStr = String(format: "%016llx", titleID)
         let entry = titleEntry(forTitleID: titleID)
 
         let workDir = FileManager.default.temporaryDirectory
@@ -204,7 +204,7 @@ public final class TitleFileTree {
         try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
         reporter?.resetTotals()
 
-        let baseURL = "http://ccs.cdn.c.shop.nintendowifi.net/ccs/download/\(String(format: "%016x", titleID))"
+        let baseURL = "http://ccs.cdn.c.shop.nintendowifi.net/ccs/download/\(String(format: "%016llx", titleID))"
         var missing: [Content] = []
         var totalSize: Int64 = 0
         for index in needed {
